@@ -27,7 +27,7 @@ const Card = () => {
 
                                                    </div>
                                              </div>
-                                             <button className='btn'>Add To Cart</button>
+                                             <button className='btn'>Add To Cart!</button>
                                         </div>
                                    )
                               
