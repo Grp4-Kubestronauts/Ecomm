@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import './css/product.css';
 import './App.css'
 
@@ -10,10 +11,15 @@ import Navbar from './components/Navbar';
 import contents from './components/content'; 
 import Footer from './components/footer';
 
+=======
+import logo from './logo.svg';
+import './App.css';
+>>>>>>> karthik
 
 function App() {
   return (
     <div className="App">
+<<<<<<< HEAD
 
        {/*This is for the NavBar/Menu component */} 
        <Navbar/>
@@ -42,6 +48,9 @@ function App() {
 
       <Footer/>
       
+=======
+      <h1>Demo World!!!!!</h1>
+>>>>>>> karthik
     </div>
   );
 }
