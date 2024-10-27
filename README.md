@@ -18,14 +18,16 @@ You should see a $ sign now else none of the below commands will work.
 cd Ecomm/terraform 
 
 terraform init (this will setup terraform essentials in your folder)
+
 terraform plan (This will show what files are updated, optional, just for info)
+
 terraform apply -auto-approve (This is the creation part where your ECR, EKS, Node group and all the amazon service will be created. This should takes 10- 25 mins.)
 
 Once this is done, EKS cluster is created in Ohio region (us-east-2). Remember from this minute onwards you will be charged $$$ not much.
 
 Remember to open your Docker app and leave it there.
 
-cd ../
-./deploy.sh (This is a script that puts a list of commands on its own and in the end if all goes good it should give you a AWS URL link where our site will be hosted with kubernetes)
+**cd ../
+./deploy.sh **(This is a script that puts a list of commands on its own and in the end if all goes good it should give you a AWS URL link where our site will be hosted with kubernetes)
 
 Congrats! though we got more to do in it.
