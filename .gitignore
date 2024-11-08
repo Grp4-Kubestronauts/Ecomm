@@ -21,6 +21,7 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
 
 # Local .terraform directories
 **/.terraform/*
@@ -60,3 +61,5 @@ override.tf.json
 .terraformrc
 terraform.rc
 
+=======
+>>>>>>> 669207b77e3fc30c89c3737921c471b16953eebb
