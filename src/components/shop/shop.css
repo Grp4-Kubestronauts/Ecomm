@@ -1,0 +1,76 @@
+.shopTitle {
+  margin-top: 100px;
+  text-align: center;
+  font-size: 40px;
+}
+
+.products {
+  display: flex;
+  flex-wrap: wrap; /* Allow products to wrap */
+  justify-content: center; /* Center products */
+  width: 100%;
+  height: auto;
+}
+
+.product {
+  border-radius: 15px;
+  width: 300px; /* Default width for larger screens */
+  height: auto; /* Allow height to be auto */
+  margin: 20px; /* Reduce margin for better spacing */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s; /* Add transition for hover effect */
+}
+
+.product img {
+  width: 100%; /* Make image responsive */
+  height: auto; /* Maintain aspect ratio */
+}
+
+.product .description {
+  text-align: center;
+}
+
+.product:hover {
+  transform: scale(1.05); /* Slightly scale up on hover */
+  cursor: pointer;
+}
+
+.addToCartBttn {
+  background-color: transparent;
+  border: 2px solid rgb(19, 19, 19);
+  min-width: 100px;
+  padding: 5px 10px; /* Combine padding for cleaner code */
+  border-radius: 15px;
+}
+
+.addToCartBttn:hover {
+  background-color: rgb(19, 19, 19);
+  color: white;
+  cursor: pointer;
+}
+
+/* Media Queries for responsiveness */
+@media (max-width: 768px) {
+  .shopTitle {
+      font-size: 30px; /* Smaller font size on smaller screens */
+  }
+
+  .product {
+      width: 90%; /* Make products wider on small screens */
+      margin: 10px; /* Adjust margin */
+  }
+}
+
+@media (max-width: 480px) {
+  .shopTitle {
+      font-size: 24px; /* Further reduce font size */
+  }
+
+  .addToCartBttn {
+      min-width: 80px; /* Adjust button size */
+      padding: 4px 8px; /* Adjust padding */
+  }
+}

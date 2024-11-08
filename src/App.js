@@ -1,9 +1,7 @@
 import './css/product.css';
 import './App.css'
 
-import introImage from './images/introimg.jpg';  // Import the image from src/images
-import introImage2 from './images/introimg2.png';
-import introImage3 from './images/introimg3.jpg'
+
 
 import { Products } from './components/Products';
 import Navbar from './components/Navbar';
@@ -11,21 +9,33 @@ import contents from './components/content';
 import Footer from './components/footer';
 
 
+
+import { Shop } from "./components/shop/shop";
+import { Cart } from "./components/cart/cart";
+import { ShopContextProvider } from "./components/context/context";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+
+
 function App() {
   return (
     <div className="App">
+      <ShopContextProvider>
+      
 
-       {/*This is for the NavBar/Menu component */} 
-       <Navbar/>
-     
-      {/*This is for the image*/} 
-      <div className='intro' >
-        
+      <Router>
+      <Navbar />
+       {/*This is for the image*/} 
+       
+          <Routes>
+            <Route path="/" element={<Shop />} />
+            <Route path="/cart" element={<Cart />} />
+          </Routes>
+        </Router>
 
-      <img src={introImage} alt="intro"className='introimg' />
-      </div>
+    
 
-      {/*This is for the Products component */} 
+      {/*This is for the Products component 
       <div className='App2s'>
             {contents.map((contents) => (
                 <Products 
@@ -38,8 +48,10 @@ function App() {
                     rating={contents.rating}
                 />
             ))}
-      </div>
+      </div>*/} 
 
+      
+      </ShopContextProvider>
       <Footer/>
       
     </div>

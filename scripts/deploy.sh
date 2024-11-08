@@ -11,6 +11,7 @@ log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S'): $1"
 }
 
+cd ..
 # Navigate to terraform directory and get outputs
 cd terraform
 
@@ -29,8 +30,10 @@ log "Authenticating with ECR..."
 aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO
 
 # Tag and push image
-log "Tagging and pushing image to ECR..."
+log "Tagging and pushing image to ECR... and   dnsodnsdsds:"$APP_NAME
+log "bk "
 docker tag $APP_NAME:latest $ECR_REPO:latest
+log "ECR Repo:"$ECR_REPO
 docker push $ECR_REPO:latest
 
 # Update kubeconfig

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 body{
     margin: 0;
     /*background-color: #00c2cb;*/
@@ -6,18 +6,29 @@ body{
     
 }
 
-
+.head_nav{
+  
+  position: fixed;
+  font-size: 10px;
+  color: white;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  display: flex;
+  top: 20px;
+}
 
 .header{
     
-    font-size: 10px;
-    color: white;
-    padding: 15px;
-   
+  display: flex;
+  justify-content: flex-start;
+    
+  }
+
+  .navbar{
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
+    justify-content: flex-end;
+   
   }
   
 a{
@@ -34,7 +45,7 @@ a{
     height: auto;
     
   }
-=======
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -48,4 +59,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
->>>>>>> karthik
