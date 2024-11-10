@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 body{
     margin: 0;
     /*background-color: #00c2cb;*/
@@ -34,7 +34,7 @@ a{
     height: auto;
     
   }
-=======
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -48,4 +48,3 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
->>>>>>> karthik
