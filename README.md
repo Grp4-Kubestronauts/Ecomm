@@ -70,6 +70,10 @@ The project is fairly simple — it has a menu, an image, and a card layout disp
     ```bash
     npm install
     ```
+5. Install the react-icons library else it will throw an error.
+   ```bash
+   npm install react-icons
+   ```
 
 5. **Start the React app**:
     Run the following command to start the app:
