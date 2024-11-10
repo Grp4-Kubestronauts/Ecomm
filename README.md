@@ -89,7 +89,7 @@ The project is fairly simple — it has a menu, an image, and a card layout disp
 
 ## Step 3: Using Terraform to Provision AWS Infrastructure
 
-The Terraform configuration in this project automates the creation of all required AWS services (EKS, ECR, VPC, etc.) so you don’t have to manually create them.
+The Terraform configuration in this project automates the creation of all required AWS services (EKS, ECR, VPC, etc.) so you don’t have to manually create them. You will have to download terraform.exe file. The .exe when opened won't run it's not a runnable file, all you got to do is copy the folder location to path(environment variables) 
 
 1. **Navigate to the Terraform folder**:
 
@@ -131,7 +131,21 @@ The Terraform configuration in this project automates the creation of all requir
 
     ```bash
     cd ../
+    cd .\scripts\
     ./deploy.sh
     ```
 
-    This script will automate the deployment of the app to your newly created Kubernetes cluster. At the
+    This script will automate the deployment of the app to your newly created Kubernetes cluster. If all goes good then you should be good with a url link to check the website hosted on K8s.
+
+   
+## Step 4: Destroy AWS service with terraform:
+1. **To delete AWS services created by Terraform: **
+  ```bash
+  cd../
+  cd terraform
+  terraform destroy
+  ```
+2. This will take 5-10 mins to destroy what all it created. Still its best to check EKS, ECR, Load balancer, EC2 Dashboard, Network gateway, Nat gateway manually to make sure you won't get charged unnecessarily.
+3. For the next two days check your cost explorer in AWS console to see if u got charged for day 2 of inactivity, that's how you know you didn't delete some resources.
+> **Important Reminder:**  
+> Check `Ohio` `us-east-2`, by defualt AWS console shows you `North Virginia`.
