@@ -71,8 +71,7 @@ Firstly definitely create an AWS account, and create 3 aws budgets. Go to AWS co
 
 
 Inline `code` example.
-
-```bash
+bash
 echo "Hello, World!"
 
 ```bash
