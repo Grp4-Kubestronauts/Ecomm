@@ -8,7 +8,10 @@ Firstly definitely create an AWS account, and create 3 aws budgets. Go to AWS co
 ## Step 1: 
 - Set up AWS in command prompt (watch random yt videos 3-5mins)
 - Set up an IAM user, As a root user go to IAM users, create a new one, after creating select the user and scroll down to see add secret access id. Generate id and password save it as a notepad file in dekstop to view whenever needed. 
-- Open cmd and type "aws configure" should ask you to input the IAM user id, password, region and json(leave this 4th one empty by pressing enter). Remember to put region as "us-east-2". It's Ohio region our source code is configured with us-east-2.
+- Open cmd and type 
+```bash
+aws configure
+ should ask you to input the IAM user id, password, region and json(leave this 4th one empty by pressing enter). Remember to put region as "us-east-2". It's Ohio region our source code is configured with us-east-2.
 
  Reminder: (Watch youtube videos on how to setup and use aws cli. You should have an Iam User too with secret key access such that you will feed it to your cmd with aws configure. Keep the region us-east-2.)
 
