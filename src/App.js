@@ -3,9 +3,7 @@ import './App.css'
 
 
 
-import { Products } from './components/Products';
 import Navbar from './components/Navbar';
-import contents from './components/content'; 
 import Footer from './components/footer';
 
 

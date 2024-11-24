@@ -9,7 +9,7 @@
 
     return (
       <div className="product">
-        <img src={image} />
+        <img src={image} alt="something" />
        
           <p><b>{title}</b></p>
           <p> $ {price}</p>
