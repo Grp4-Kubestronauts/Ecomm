@@ -33,7 +33,35 @@ sudo apt-get update
 echo "Installing Docker packages..."
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
 
-# 4. Install Jenkins
+
+# 4. Install Terraform
+echo "Installing Terraform..."
+sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
+
+wget -O- https://apt.releases.hashicorp.com/gpg | \
+gpg --dearmor | \
+sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
+https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
+sudo tee /etc/apt/sources.list.d/hashicorp.list
+
+sudo apt update
+sudo apt-get install terraform -y
+
+# 5. Install kubectl
+
+echo "Installing Kubectl right noq..."
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# 6. Verify if u got kubectl installed...:
+
+echo "If the following of the following command should show a url path that's where ur kubeconfig exists if no url then chatgpt how to setup kubeconfig"
+
+ls -l /home/ubuntu/.kube/config
+
+# 7. Install Jenkins
 echo "Installing Jenkins..."
 sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
   https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
@@ -56,35 +84,8 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
 # Add Jenkins user to Docker group to bypass sudo permissions for Docker commands
 echo "Adding Jenkins user to Docker group..."
 sudo usermod -aG docker jenkins
-sudo systemctl restart jenkins
 
-# 5. Install Terraform
-echo "Installing Terraform..."
-sudo apt-get update && sudo apt-get install -y gnupg software-properties-common
-
-wget -O- https://apt.releases.hashicorp.com/gpg | \
-gpg --dearmor | \
-sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
-
-echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] \
-https://apt.releases.hashicorp.com $(lsb_release -cs) main" | \
-sudo tee /etc/apt/sources.list.d/hashicorp.list
-
-sudo apt update
-sudo apt-get install terraform -y
-
-# 6. Install kubectl
-
-echo "Installing Kubectl right noq..."
-curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-
-# 7. Verify if u got kubectl installed...:
-
-echo "If the following of the following command should show a url path that's where ur kubeconfig exists if no url then chatgpt how to setup kubeconfig"
-
-ls -l /home/ubuntu/.kube/config
-
+# Giving ubuntu the permissions to go in kubeconfig files
 sudo usermod -aG ubuntu jenkins
 sudo chmod 664 /home/ubuntu/.kube/config
 sudo systemctl restart jenkins
