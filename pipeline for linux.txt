@@ -1,0 +1,129 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-2'
+        AWS_ACCOUNT_ID = '195275674076'
+        ECR_REPO_NAME = 'react-app-repo'
+        KUBE_CONFIG_PATH = '/home/ubuntu/.kube/config' // Update path for your kubeconfig file
+        IMAGE_NAME = 'react-app'
+        IMAGE_TAG = "${BUILD_NUMBER}" // Unique tag for each build
+        TERRAFORM_DIR = 'terraform/' // Path to your Terraform files
+        EKS_CLUSTER_NAME = 'react-app-eks'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Clone the repository from GitHub
+                git branch: 'bosco', url: 'https://github.com/Grp4-Kubestronauts/Ecomm.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh '''
+                    echo "Building the Docker image..."
+                    docker build -t ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} .
+                    '''
+                }
+            }
+        }
+
+        stage('Login to AWS ECR') {
+            steps {
+                script {
+                    echo "Authenticating and trying to log in with AWS IAM user Bosco"
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                        // Use the AWS credentials stored in Jenkins Global Credentials
+                        sh '''
+                        echo "Checking AWS CLI version..."
+                        aws --version
+
+                        echo "Logging into AWS ECR..."
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                        echo "Logged into ECR successfully"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Apply Terraform Changes') {
+            tools {
+                terraform 'Terraform-11'  // Ensure this matches the name of the configured tool
+            }
+            steps {
+                dir("${TERRAFORM_DIR}") {
+                    script {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                            try {
+                                // Initialize Terraform
+                                sh 'terraform init'
+
+                                // Apply Terraform configuration
+                                sh 'terraform apply -auto-approve'
+                            } catch (Exception e) {
+                                echo "Terraform Apply failed: ${e.getMessage()}"
+                                currentBuild.result = 'FAILURE'  // Mark the build as failed
+                                throw e  // Re-throw the error to stop the pipeline
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image to ECR') {
+            steps {
+                script {
+                    // Push Docker image to ECR
+                    sh '''
+                    echo "Starting to push the Docker image to ECR..."
+                    docker tag ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                    docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}:${IMAGE_TAG}
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Use AWS credentials to authenticate kubectl with EKS
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                        // Run AWS CLI command to update kubeconfig
+                        sh '''
+                        aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}
+                        kubectl --kubeconfig=${KUBE_CONFIG_PATH} apply -f k8s/deployment.yaml
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    // Clean up (optional, e.g. remove old Docker images)
+                    sh 'docker system prune -f'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Notify build status (optional: email, Slack, etc.)
+            echo 'Pipeline completed'
+        }
+        success {
+            echo 'Pipeline succeeded'
+        }
+        failure {
+            echo 'Pipeline failed'
+        }
+    }
+}
