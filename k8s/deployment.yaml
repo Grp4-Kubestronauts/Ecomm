@@ -15,7 +15,7 @@ spec:
       containers:
       - name: react-app
         # Use the full ECR URL with the dynamic image tag
-        image: 195275674076.dkr.ecr.us-east-2.amazonaws.com/$react-app-repo:33
+        image: 195275674076.dkr.ecr.us-east-2.amazonaws.com/react-app-repo:33
         imagePullPolicy: Always  # Ensure Kubernetes always pulls the latest image
         ports:
         - containerPort: 80
