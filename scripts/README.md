@@ -1,4 +1,4 @@
-# Heya KubeAstroNuts!!
+# Heya KubeAstroNuts!!!
 
 Welcome to the **Ecomm** project! This source code contains:
 
@@ -153,8 +153,3 @@ The Terraform configuration in this project automates the creation of all requir
 3. For the next two days check your cost explorer in AWS console to see if u got charged for day 2 of inactivity, that's how you know you didn't delete some resources.
 > **Important Reminder:**  
 > Check `Ohio` `us-east-2`, by defualt AWS console shows you `North Virginia`.
-
-
-
-
-
