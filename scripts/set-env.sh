@@ -10,11 +10,11 @@ export FRONTEND_ECR_REPO="392294087512.dkr.ecr.us-east-2.amazonaws.com/react-app
 if ! DB_SECRETS=$(aws secretsmanager get-secret-value --secret-id ecommerce/db --query SecretString --output text 2>/dev/null); then
     echo "Warning: Could not fetch secrets from AWS Secrets Manager. Using environment variables."
     # Use values from k8s secrets as fallback
-    export DB_HOST="dbinstance-ecommerce.czqo6cyyql26.us-east-2.rds.amazonaws.com"
-    export DB_NAME="dbinstance-ecommerce"
-    export DB_USER="postgres"
-    export DB_PASSWORD="S6uTltsZUGSdhsmlklbo"
-    export DB_PORT="5432"
+    export DB_HOST=$DB_HOST
+    export DB_NAME=$DB_NAME
+    export DB_USER=$DB_USER
+    export DB_PASSWORD=$DB_PASSWORD
+    export DB_PORT=$DB_PORT
 else
     # Extract values from AWS Secrets Manager response
     export DB_HOST=$(echo $DB_SECRETS | jq -r .host)
