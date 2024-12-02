@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Database connection parameters
-DB_HOST="dbinstance-ecommerce.czqo6cyyql26.us-east-2.rds.amazonaws.com"
-DB_NAME="dbinstance-ecommerce"
+DB_HOST="mydb2.cfwsoy60i9bt.us-east-2.rds.amazonaws.com"
+DB_NAME="ecomm"
 DB_USER="postgres"
-DB_PASSWORD="S6uTltsZUGSdhsmlklbo"
+DB_PASSWORD="admin12345"
 
 # Function to log steps
 log() {

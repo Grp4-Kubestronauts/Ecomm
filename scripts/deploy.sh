@@ -2,25 +2,26 @@
 
 set -e
 
-
-
 # Function to log steps
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S'): $1"
 }
 
 # Get the absolute path to the script directory
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" #Ecomm\scripts
 PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
 # Source environment variables
-source "${SCRIPT_DIR}/set-env.sh"
+log "Path: ${SCRIPT_DIR}/set-env.sh"
+source "${SCRIPT_DIR}/set-env.sh"  #Ecomm\scripts\set-env
 
 # Login to ECR
 log "Authenticating with ECR..."
-aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${CART_ECR_REPO%/*}
+aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${CART_ECR_REPO%/*} 
 
-# Function to check required environment variables
+log "Successfully logged in"
+
+# Function to check if CART_ECR_REPO and FRONT_ECR_REPO is empty or not, if empty then return 1
 check_env_vars() {
     local required_vars=("CART_ECR_REPO" "FRONTEND_ECR_REPO")
     for var in "${required_vars[@]}"; do
@@ -36,14 +37,18 @@ get_cart_service_url() {
     kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 }
 
-# Check required environment variables
+# This line invokes the check_env_vars function to ensure that the required environment variables are set 
+#before proceeding with the rest of the script. If any of the required variables are missing, the script 
+#will log an error and exit early.
 check_env_vars
 
-# Create Kubernetes configurations
+# Create Kubernetes configurations | backend k8's yaml files
 log "Creating Kubernetes configurations..."
 kubectl apply -f "${PROJECT_ROOT}/k8s/secrets/cart-service-secrets.yaml"
 kubectl apply -f "${PROJECT_ROOT}/k8s/backend/cart-service-account.yaml"
 
+
+# If u didnt run secret manager with all the required db then this will run it.
 log "Setting up AWS Secrets..."
 if ! aws secretsmanager describe-secret --secret-id ecommerce/db >/dev/null 2>&1; then
     log "Creating AWS Secrets..."
@@ -59,7 +64,7 @@ docker build -t cart-service:latest .
 docker tag cart-service:latest ${CART_ECR_REPO}:latest
 docker push ${CART_ECR_REPO}:latest
 
-# Deploy cart service k8s resources
+# Deploy cart service k8s resources    # irrelevent
 log "Deploying cart service to Kubernetes..."
 sed -e "s|\${ECR_REPO_CART}|$CART_ECR_REPO|g" \
     "${PROJECT_ROOT}/k8s/backend/cart-service.yaml" | kubectl apply -f -
@@ -68,8 +73,8 @@ sed -e "s|\${ECR_REPO_CART}|$CART_ECR_REPO|g" \
 log "Waiting for cart service deployment..."
 kubectl rollout status deployment/cart-service
 
-# Get Cart Service URL
-CART_API_URL=$(get_cart_service_url)
+# Get Cart Service URL #line 36
+CART_API_URL=$(get_cart_service_url)  #kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 if [ -z "$CART_API_URL" ]; then
     log "Failed to get Cart Service URL"
     exit 1
@@ -86,7 +91,7 @@ docker build -t frontend:latest \
 docker tag frontend:latest ${FRONTEND_ECR_REPO}:latest
 docker push ${FRONTEND_ECR_REPO}:latest
 
-# Deploy frontend k8s resources
+# Deploy frontend k8s resources # this part cannot be relevent
 log "Deploying frontend to Kubernetes..."
 sed -e "s|\${ECR_REPO_FRONTEND}|$FRONTEND_ECR_REPO|g" \
     "${PROJECT_ROOT}/k8s/frontend/deployment.yaml" | kubectl apply -f -

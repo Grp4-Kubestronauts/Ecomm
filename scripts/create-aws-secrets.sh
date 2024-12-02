@@ -2,10 +2,10 @@
 
 # Create a JSON string with your database credentials
 SECRET_STRING='{
-  "host": "dbinstance-ecommerce.czqo6cyyql26.us-east-2.rds.amazonaws.com",
-  "dbname": "dbinstance-ecommerce",
+  "host": "mydb2.cfwsoy60i9bt.us-east-2.rds.amazonaws.com",
+  "dbname": "ecomm",
   "username": "postgres",
-  "password": "S6uTltsZUGSdhsmlklbo",
+  "password": "admin12345",
   "port": "5432"
 }'
 
