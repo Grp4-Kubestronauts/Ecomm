@@ -1,0 +1,25 @@
+provider "aws" {
+  region = "us-west-2"  # Secondary region for read replica
+}
+
+resource "aws_db_instance" "replica" {
+  identifier                 = "mydb2-replica"
+  engine                     = "postgres"
+  engine_version             = "15.3"
+  instance_class             = "db.t3.micro"         # Free Tier eligible instance type
+  allocated_storage          = 20                     # 20 GB storage for Free Tier
+  publicly_accessible        = true
+  db_subnet_group_name       = "your-subnet-group"    # Specify your DB subnet group
+  vpc_security_group_ids     = ["${aws_security_group.db_sg.id}"]
+
+  replication_source_identifier = "${aws_db_instance.primary.arn}"  # Use the ARN of the primary DB instance
+  tags = {
+    Environment = "production"
+    Name        = "mydb2-replica-postgresql"
+  }
+
+  backup_retention_period    = 7
+  multi_az                   = false
+  storage_encrypted          = true
+  auto_minor_version_upgrade = true
+}

@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: react-app
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: react-app
@@ -19,7 +19,7 @@ spec:
         - containerPort: 80
         env:
           - name: REACT_APP_API_URL
-            value: "http://a5e7e6e788ee44a05a6344181fd4c3e1-1752368342.us-east-2.elb.amazonaws.com//"
+            value: "http://a5e7e6e788ee44a05a6344181fd4c3e1-1752368342.us-east-2.elb.amazonaws.com"
         readinessProbe:
           httpGet:
             path: /
