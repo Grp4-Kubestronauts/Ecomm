@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "us-east-2"  # Change this to your region
 }
 
+variable "aws_region_secondary"{
+  description = "Secondary AWS region"
+  type = string
+  default = "us-west-2"
+}
+
 variable "environment" {
   description = "Environment name"
   type        = string
@@ -14,6 +20,12 @@ variable "vpc_cidr" {
   description = "VPC CIDR block"
   type        = string
   default     = "10.0.0.0/16"
+}
+
+variable "vpc_cidr_secondary" {
+  description = "CIDR block for the secondary region's VPC"
+  type        = string
+  default     = "10.1.0.0/16" # Change this to an appropriate CIDR block
 }
 
 variable "cluster_name" {

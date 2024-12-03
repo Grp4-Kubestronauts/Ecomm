@@ -1,4 +1,4 @@
-
+//primary
 resource "aws_ecr_repository" "react_app" {
   name                 = "react-app-repo"
   image_tag_mutability = "MUTABLE"
@@ -12,6 +12,22 @@ resource "aws_ecr_repository" "react_app" {
   }
 }
 
+//secondary
+resource "aws_ecr_repository" "react_app_secondary" {
+  provider             = aws.secondary
+  name                 = "react-app-repo-secondary"
+  image_tag_mutability = "MUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+  tags = {
+    Environment = var.environment
+    Service = "frontend-secondary"
+  }
+}
+
+//primary
 resource "aws_ecr_repository" "cart_service" {
   name = "${var.environment}-cart-service"
   
@@ -23,6 +39,21 @@ resource "aws_ecr_repository" "cart_service" {
     Environment = var.environment
     Service     = "microservice"
     Type        = "cart-service"
+  }
+}
+
+//secondary
+resource "aws_ecr_repository" "cart_service_secondary" {
+  provider = aws.secondary
+  name = "${var.environment}-cart_service_secondary"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+  tags = {
+    Environment = var.environment
+    Service = "microservice_secondary"
+    Type = "cart-service_secondary"
   }
 }
 
@@ -112,6 +143,7 @@ resource "aws_iam_policy" "ecr_deploy_policy" {
   })
 }
 
+//primary
 resource "aws_ecr_lifecycle_policy" "react_app" {
   repository = aws_ecr_repository.react_app.name
 
@@ -131,10 +163,30 @@ resource "aws_ecr_lifecycle_policy" "react_app" {
   })
 }
 
-output "ecr_repository_url" {
-  value = aws_ecr_repository.react_app.repository_url
+//secondary
+resource "aws_ecr_lifecycle_policy" "react_app_secondary" {
+  provider   = aws.secondary
+  repository = aws_ecr_repository.react_app_secondary.name
+
+  policy = jsonencode({
+    rules = [{
+      rulePriority = 1
+      description  = "Keep last 5 images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 5
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
 }
 
-output "cart_service_repository_url" {
-  value = aws_ecr_repository.cart_service.repository_url
-}
+
+
+
+
+
+

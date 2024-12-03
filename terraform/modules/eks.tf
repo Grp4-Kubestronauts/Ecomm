@@ -1,9 +1,10 @@
+# Primary EKS Cluster and Node Group
 resource "aws_eks_cluster" "main" {
   name     = var.cluster_name
   role_arn = aws_iam_role.eks_cluster.arn
 
   vpc_config {
-    subnet_ids = concat(aws_subnet.private[*].id, aws_subnet.public[*].id)
+    subnet_ids              = concat(aws_subnet.private[*].id, aws_subnet.public[*].id)
     endpoint_private_access = true
     endpoint_public_access  = true
   }
@@ -25,7 +26,7 @@ resource "aws_eks_node_group" "main" {
     min_size     = 1
   }
 
-  instance_types = ["t3.medium"]
+  instance_types = ["t2.micro"]
 
   depends_on = [
     aws_iam_role_policy_attachment.eks_worker_node_policy,
@@ -34,8 +35,48 @@ resource "aws_eks_node_group" "main" {
   ]
 }
 
+# Secondary EKS Cluster and Node Group
+resource "aws_eks_cluster" "secondary" {
+  provider = aws.secondary
+  name     = "${var.environment}-eks-secondary"
+  role_arn = aws_iam_role.eks_cluster.arn
 
-# IAM Roles and Policies
+  vpc_config {
+    subnet_ids              = concat(aws_subnet.dr_private[*].id, aws_subnet.dr_public[*].id) # Updated to reference provider = aws.secondary
+    endpoint_private_access = true
+    endpoint_public_access  = true
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_cluster_policy
+  ]
+}
+
+resource "aws_eks_node_group" "secondary" {
+  provider        = aws.secondary
+  cluster_name    = aws_eks_cluster.secondary.name
+  node_group_name = "${var.environment}-node-group-secondary"
+  node_role_arn   = aws_iam_role.eks_nodes.arn
+  subnet_ids      = aws_subnet.dr_private[*].id # Updated to reference provider = aws.secondary
+
+  scaling_config {
+    desired_size = 1 
+    max_size     = 4
+    min_size     = 0
+  }
+
+  instance_types = ["t2.micro"]
+
+  depends_on = [
+    aws_iam_role_policy_attachment.eks_worker_node_policy,
+    aws_iam_role_policy_attachment.eks_cni_policy,
+    aws_iam_role_policy_attachment.ecr_read_only
+  ]
+}
+
+# IAM Roles and Policies (No change required)
+
+
 resource "aws_iam_role" "eks_cluster" {
   name = "${var.environment}-eks-cluster-role"
 

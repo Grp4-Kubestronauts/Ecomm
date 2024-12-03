@@ -1,3 +1,6 @@
+-- Select the ecomm database
+\c ecomm;
+
 -- Create products table
 CREATE TABLE IF NOT EXISTS products (
     id SERIAL PRIMARY KEY,
@@ -7,7 +10,7 @@ CREATE TABLE IF NOT EXISTS products (
     image_key VARCHAR(255)
 );
 
--- Insert sample products
+-- Insert sample products into the products table
 INSERT INTO products (title, price, description, image_key) VALUES 
     ('Classic Watch', 299.99, 'Elegant timepiece with leather strap', 'products/watch.jpg'),
     ('Running Shoes', 149.99, 'Comfortable athletic shoes for daily use', 'products/shoe.jpg'),
@@ -20,4 +23,4 @@ CREATE TABLE IF NOT EXISTS cart_items (
     product_id INTEGER REFERENCES products(id),
     quantity INTEGER NOT NULL DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-); 
+);

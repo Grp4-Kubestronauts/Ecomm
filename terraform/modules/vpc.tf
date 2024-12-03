@@ -1,3 +1,4 @@
+# Primary Region VPC (existing code)
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -47,6 +48,7 @@ resource "aws_internet_gateway" "main" {
   }
 }
 
+# NAT Gateway
 resource "aws_eip" "nat" {
   domain = "vpc"
 }
@@ -57,16 +59,6 @@ resource "aws_nat_gateway" "main" {
 
   tags = {
     Name = "${var.environment}-nat"
-  }
-}
-
-# Update private route table to use NAT Instance
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    gateway_id     = aws_nat_gateway.main.id  # Use NAT instance instead of NAT Gateway
   }
 }
 
@@ -84,14 +76,176 @@ resource "aws_route_table" "public" {
   }
 }
 
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.main.id
+  }
+
+  tags = {
+    Name = "${var.environment}-private"
+  }
+}
+
 resource "aws_route_table_association" "public" {
   count          = 2
   subnet_id      = aws_subnet.public[count.index].id
   route_table_id = aws_route_table.public.id
 }
 
+# Add db_public_subnet to the public route table
+resource "aws_route_table_association" "db_public" {
+  subnet_id      = aws_subnet.db_public_subnet.id  # Reference to your db_public_subnet
+  route_table_id = aws_route_table.public.id      # Reference to your public route table
+}
+
 resource "aws_route_table_association" "private" {
   count          = 2
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "db_private" {
+  subnet_id = aws_subnet.db_private_subnet.id
+  route_table_id = aws_route_table.private.id  
+}
+
+# Secondary Region (DR) VPC
+data "aws_availability_zones" "dr_available" {
+  provider = aws.secondary
+  state    = "available"
+}
+
+resource "aws_vpc" "dr" {
+  provider             = aws.secondary
+  cidr_block           = var.vpc_cidr_secondary # Ensure this CIDR block doesn't overlap with primary region
+  enable_dns_hostnames = true
+  enable_dns_support   = true
+
+  tags = {
+    Name = "${var.environment}-dr-vpc"
+  }
+}
+
+resource "aws_subnet" "dr_private" {
+  count             = 2
+  provider          = aws.secondary
+  vpc_id            = aws_vpc.dr.id
+  cidr_block        = cidrsubnet(var.vpc_cidr_secondary, 8, count.index)
+  availability_zone = data.aws_availability_zones.dr_available.names[count.index]
+
+  tags = {
+    Name                              = "${var.environment}-dr-private-${count.index + 1}"
+    "kubernetes.io/role/internal-elb" = "1"
+  }
+}
+
+resource "aws_subnet" "dr_public" {
+  count             = 2
+  provider          = aws.secondary
+  vpc_id            = aws_vpc.dr.id
+  cidr_block        = cidrsubnet(var.vpc_cidr_secondary, 8, count.index + 2)
+  availability_zone = data.aws_availability_zones.dr_available.names[count.index]
+
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name                     = "${var.environment}-dr-public-${count.index + 1}"
+    "kubernetes.io/role/elb" = "1"
+  }
+}
+# Database subnets
+
+resource "aws_subnet" "db_public_subnet"{
+  
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.5.0/24"  # Manually assign the CIDR block
+  availability_zone = "us-east-2a"
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "db-public-subnet"  # Give the subnet a name
+  }
+}
+
+# Private Subnet
+resource "aws_subnet" "db_private_subnet" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = "10.0.6.0/24"  # For example, the next available range
+  availability_zone = "us-east-2b"
+  tags = {
+    Name = "db-private-subnet"  # Give the subnet a name
+  }
+}
+
+
+# DR Internet Gateway
+resource "aws_internet_gateway" "dr" {
+  provider = aws.secondary
+  vpc_id   = aws_vpc.dr.id
+
+  tags = {
+    Name = "${var.environment}-dr-igw"
+  }
+}
+
+# DR NAT Gateway
+resource "aws_eip" "dr_nat" {
+  provider = aws.secondary
+  domain   = "vpc"
+}
+
+resource "aws_nat_gateway" "dr" {
+  provider      = aws.secondary
+  allocation_id = aws_eip.dr_nat.id
+  subnet_id     = aws_subnet.dr_public[0].id
+
+  tags = {
+    Name = "${var.environment}-dr-nat"
+  }
+}
+
+# DR Route Tables
+resource "aws_route_table" "dr_public" {
+  provider = aws.secondary
+  vpc_id   = aws_vpc.dr.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.dr.id
+  }
+
+  tags = {
+    Name = "${var.environment}-dr-public"
+  }
+}
+
+resource "aws_route_table" "dr_private" {
+  provider = aws.secondary
+  vpc_id   = aws_vpc.dr.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.dr.id
+  }
+
+  tags = {
+    Name = "${var.environment}-dr-private"
+  }
+}
+
+resource "aws_route_table_association" "dr_public" {
+  provider       = aws.secondary
+  count          = 2
+  subnet_id      = aws_subnet.dr_public[count.index].id
+  route_table_id = aws_route_table.dr_public.id
+}
+
+resource "aws_route_table_association" "dr_private" {
+  provider       = aws.secondary
+  count          = 2
+  subnet_id      = aws_subnet.dr_private[count.index].id
+  route_table_id = aws_route_table.dr_private.id
 }
