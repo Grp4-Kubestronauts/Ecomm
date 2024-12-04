@@ -1,6 +1,5 @@
 
 1. Then, set up the AWS infrastructure using Terraform:
-    Copy the tf file provided by bosco to the terraform/modules folder
     cd terraform/modules
     terraform init
     terraform plan
@@ -50,3 +49,11 @@
         `image: <your id>.dkr.ecr.us-east-2.amazonaws.com/react-app-repo:latest` 
         value: "replace with your cart-service URL (dont change it now, first run the ./deploy.sh, after that you will get a CART_SERVICE URL, then replace that here and run the script again)
     
+
+Useful Commands:
+    `kubectl get pods`
+    `kubectl get services`
+
+    `kubectl logs <pod-name>`
+
+
