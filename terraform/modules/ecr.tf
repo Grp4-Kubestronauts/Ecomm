@@ -2,6 +2,7 @@
 resource "aws_ecr_repository" "react_app" {
   name                 = "react-app-repo"
   image_tag_mutability = "MUTABLE"
+  force_delete = false
 
   image_scanning_configuration {
     scan_on_push = true
@@ -14,6 +15,7 @@ resource "aws_ecr_repository" "react_app" {
 
 resource "aws_ecr_repository" "cart_service" {
   name = "${var.environment}-cart-service"
+  force_delete = false
   
   image_scanning_configuration {
     scan_on_push = true
