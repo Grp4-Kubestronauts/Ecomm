@@ -33,7 +33,10 @@ spec:
                 name: cart-service-secrets
                 key: s3-bucket
           - name: AWS_REGION
-            value: "us-east-2"
+            valueFrom:
+              secretKeyRef:
+                name: cart-service-secrets
+                key: aws-region
         readinessProbe:
           httpGet:
             path: /health

@@ -1,0 +1,205 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-2'
+        S3_BUCKET = "ecommerce-bucket-kube1"
+        AWS_ACCOUNT_ID = '195275674076'
+        ECR_REPO_NAME = 'react-app-repo'
+        KUBE_CONFIG_PATH = '/var/lib/jenkins/.kube/config' // Update path for your kubeconfig file
+        IMAGE_NAME = 'react-app'
+        IMAGE_TAG = "${BUILD_NUMBER}" // Unique tag for each build
+        TERRAFORM_DIR = 'terraform/' // Path to your Terraform files
+        EKS_CLUSTER_NAME = 'react-app-eks'
+        CART_ECR_REPO = '195275674076.dkr.ecr.us-east-2.amazonaws.com/dev-cart-service' // Replace with actual Cart ECR Repo
+        FRONTEND_ECR_REPO = '195275674076.dkr.ecr.us-east-2.amazonaws.com/react-app-repo' // Replace with actual Frontend ECR Repo
+        
+        // DATABASE
+        DB_HOST = "mydb2.cfwsoy60i9bt.us-east-2.rds.amazonaws.com"
+        DB_NAME = "ecomm"
+        DB_USER = "postgres"
+        DB_PASSWORD = "admin12345"
+        DB_PORT = 5432
+        PORT = 3001
+        
+        cartApiUrl="http://a53e63b663743493ab43230f30e135ed-1371539713.us-east-2.elb.amazonaws.com/api/products"
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                // Clone the repository from GitHub
+                git branch: 'bosco-jenkins', url: 'https://github.com/Grp4-Kubestronauts/Ecomm.git'
+                
+                // Print the current directory using the shell's `pwd` command
+                sh """
+                    echo "The GitHub repo is at \$(pwd)"
+                """
+            }
+        }
+
+        stage('Login to AWS ECR') {
+            steps {
+                script {
+                    echo "Authenticating and trying to log in with AWS IAM user Bosco"
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                        // Use the AWS credentials stored in Jenkins Global Credentials
+                        sh '''
+                            echo "Checking AWS CLI version..."
+                            aws --version
+
+                            echo "Logging into AWS ECR..."
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+                            echo "Logged into ECR successfully"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    echo "Building Docker Images for ECR..."
+                    echo "Project Root: /var/lib/jenkins/workspace/Ecomm"
+
+                    // Build and deploy cart service
+                    echo "Building cart service..."
+                    dir("/var/lib/jenkins/workspace/Ecomm/backend/cart-service") {
+                        sh 'docker build -t cart-service:latest .'
+                        sh 'docker tag cart-service:latest ${CART_ECR_REPO}:latest'
+                        sh 'docker push ${CART_ECR_REPO}:latest'
+                    }
+
+                    /* Build and deploy frontend
+                    echo "Building frontend..."
+                    def cartApiUrl = sh(script: "kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
+                    if (cartApiUrl == '') {
+                        error "Failed to get Cart Service URL"
+                    }*/
+
+                    echo "Cart Service URL: ${cartApiUrl}"
+
+                    dir("/var/lib/jenkins/workspace/Ecomm/frontend") {
+                        sh """
+                            docker build -t frontend:latest --build-arg REACT_APP_API_URL="http://${cartApiUrl}" -f docker/Dockerfile .
+                            docker tag frontend:latest ${FRONTEND_ECR_REPO}:latest
+                            docker push ${FRONTEND_ECR_REPO}:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                        sh "aws eks --region us-east-2 update-kubeconfig --name react-app-eks"
+                        echo "Deploying Cart and Frontend Services to Kubernetes..."
+    
+                        // Deploy cart service k8s resources
+                        echo "Deploying cart service to Kubernetes..."
+                        sh """
+                            sed -e "s|\${CART_ECR_REPO}|${CART_ECR_REPO}|g" /var/lib/jenkins/workspace/Ecomm/k8s/backend/cart-service.yaml | kubectl apply -f -
+                        """
+    
+                        // Wait for cart service deployment
+                        echo "Waiting for cart service deployment..."
+                        sh 'kubectl rollout status deployment/cart-service'
+    
+                        // Get Cart Service URL
+                        def cartApiUrl = sh(script: "kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
+                        if (cartApiUrl == '') {
+                            error "Failed to get Cart Service URL"
+                        }
+    
+                        echo "Cart Service URL: ${cartApiUrl}"
+    
+                        // Create Kubernetes configurations for Cart Service
+                        echo "Creating Kubernetes configurations for cart service..."
+                        sh "kubectl apply -f /var/lib/jenkins/workspace/Ecomm/k8s/secrets/cart-service-secrets.yaml"
+                        sh "kubectl apply -f /var/lib/jenkins/workspace/Ecomm/k8s/backend/cart-service-account.yaml"
+    
+                        // Setup AWS Secrets for cart service
+                        echo "Setting up AWS Secrets..."
+                        sh """
+                            if ! aws secretsmanager describe-secret --secret-id ecommerce/db >/dev/null 2>&1; then
+                                echo "Creating AWS Secrets..."
+                                ./create-aws-secrets.sh
+                            fi
+                        """
+    
+                        // Deploy frontend k8s resources
+                        echo "Deploying frontend to Kubernetes..."
+                        sh """
+                            sed -e "s|\${FRONTEND_ECR_REPO}|${FRONTEND_ECR_REPO}|g" /var/lib/jenkins/workspace/Ecomm/k8s/frontend/deployment.yaml | kubectl apply -f -
+                        """
+    
+                        // Wait for frontend deployment
+                        echo "Waiting for frontend deployment..."
+                        sh 'kubectl rollout status deployment/react-app'
+    
+                        echo "Deployment complete!"
+    
+                        // Capture the Frontend URL and echo it
+                        def frontendUrl = sh(script: "kubectl get svc react-app-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
+                        echo "Frontend URL: ${frontendUrl}"
+    
+                        // Log Cart Service URL
+                        echo "Cart Service URL: ${cartApiUrl}"
+                    }
+                }
+            }
+        }
+
+        stage('Apply Terraform Changes') {
+            tools {
+                terraform 'Terraform-11'  // Ensure this matches the name of the configured tool
+            }
+            steps {
+                dir('terraform') {
+                    script {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                            try {
+                                // Initialize Terraform
+                                sh '''
+                                    cd modules
+                                    echo "The TERRAFORM folder running is at $(pwd)"
+                                    terraform init
+                                    terraform apply -auto-approve
+                                '''
+                            } catch (Exception e) {
+                                echo "Terraform Apply failed: ${e.getMessage()}"
+                                currentBuild.result = 'FAILURE'  // Mark the build as failed
+                                throw e  // Re-throw the error to stop the pipeline
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                script {
+                    // Clean up (optional, e.g., remove old Docker images)
+                    sh 'docker system prune -f'
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            // Notify build status (optional: email, Slack, etc.)
+            echo 'Pipeline completed'
+        }
+        success {
+            echo 'Pipeline succeeded'
+        }
+        failure {
+            echo 'Pipeline failed'
+        }
+    }
+}

@@ -44,6 +44,7 @@ check_env_vars
 
 # Create Kubernetes configurations | backend k8's yaml files
 log "Creating Kubernetes configurations..."
+aws eks --region us-east-2 update-kubeconfig --name react-app-eks
 kubectl apply -f "${PROJECT_ROOT}/k8s/secrets/cart-service-secrets.yaml"
 kubectl apply -f "${PROJECT_ROOT}/k8s/backend/cart-service-account.yaml"
 
