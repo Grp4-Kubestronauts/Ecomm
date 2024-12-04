@@ -1,4 +1,4 @@
-//primary
+// Primary ECR Repository: react_app
 resource "aws_ecr_repository" "react_app" {
   name                 = "react-app-repo"
   image_tag_mutability = "MUTABLE"
@@ -6,13 +6,18 @@ resource "aws_ecr_repository" "react_app" {
   image_scanning_configuration {
     scan_on_push = true
   }
+
   tags = {
     Environment = var.environment
-    Service = "frontend"
+    Service     = "frontend"
+  }
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the ECR repository
   }
 }
 
-//secondary
+// Secondary ECR Repository: react_app_secondary
 resource "aws_ecr_repository" "react_app_secondary" {
   provider             = aws.secondary
   name                 = "react-app-repo-secondary"
@@ -21,13 +26,18 @@ resource "aws_ecr_repository" "react_app_secondary" {
   image_scanning_configuration {
     scan_on_push = true
   }
+
   tags = {
     Environment = var.environment
-    Service = "frontend-secondary"
+    Service     = "frontend-secondary"
+  }
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the ECR repository
   }
 }
 
-//primary
+// Primary ECR Repository: cart_service
 resource "aws_ecr_repository" "cart_service" {
   name = "${var.environment}-cart-service"
   
@@ -40,23 +50,33 @@ resource "aws_ecr_repository" "cart_service" {
     Service     = "microservice"
     Type        = "cart-service"
   }
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the ECR repository
+  }
 }
 
-//secondary
+// Secondary ECR Repository: cart_service_secondary
 resource "aws_ecr_repository" "cart_service_secondary" {
   provider = aws.secondary
-  name = "${var.environment}-cart_service_secondary"
+  name     = "${var.environment}-cart_service_secondary"
 
   image_scanning_configuration {
     scan_on_push = true
   }
+
   tags = {
     Environment = var.environment
-    Service = "microservice_secondary"
-    Type = "cart-service_secondary"
+    Service     = "microservice_secondary"
+    Type        = "cart-service_secondary"
+  }
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the ECR repository
   }
 }
 
+// IAM Policy for ECR Access
 resource "aws_iam_policy" "ecr_policy" {
   name        = "ecr-access-policy"
   description = "Policy for ECR repository access"
@@ -85,9 +105,13 @@ resource "aws_iam_policy" "ecr_policy" {
       }
     ]
   })
+
+  lifecycle {
+    ignore_changes = [name]  # Ignore changes to the 'name' of the IAM policy
+  }
 }
 
-
+// IAM Role Policy for ECR Full Access
 resource "aws_iam_role_policy" "ecr_full_access" {
   name = "${var.environment}-ecr-full-access"
   role = aws_iam_role.eks_nodes.id
@@ -113,7 +137,7 @@ resource "aws_iam_role_policy" "ecr_full_access" {
   })
 }
 
-# Add policy for the user/role executing the deployment script
+// IAM Policy for ECR Deployment
 resource "aws_iam_policy" "ecr_deploy_policy" {
   name        = "${var.environment}-ecr-deploy-policy"
   description = "Policy for ECR image deployment"
@@ -143,33 +167,12 @@ resource "aws_iam_policy" "ecr_deploy_policy" {
   })
 }
 
-//primary
+// ECR Lifecycle Policy for Primary Repository: react_app
 resource "aws_ecr_lifecycle_policy" "react_app" {
   repository = aws_ecr_repository.react_app.name
 
   policy = jsonencode({
-    rules = [{
-      rulePriority = 1
-      description  = "Keep last 5 images"
-      selection = {
-        tagStatus     = "any"
-        countType     = "imageCountMoreThan"
-        countNumber   = 5
-      }
-      action = {
-        type = "expire"
-      }
-    }]
-  })
-}
-
-//secondary
-resource "aws_ecr_lifecycle_policy" "react_app_secondary" {
-  provider   = aws.secondary
-  repository = aws_ecr_repository.react_app_secondary.name
-
-  policy = jsonencode({
-    rules = [{
+    rules = [ {
       rulePriority = 1
       description  = "Keep last 5 images"
       selection = {
@@ -184,9 +187,23 @@ resource "aws_ecr_lifecycle_policy" "react_app_secondary" {
   })
 }
 
+// ECR Lifecycle Policy for Secondary Repository: react_app_secondary
+resource "aws_ecr_lifecycle_policy" "react_app_secondary" {
+  provider   = aws.secondary
+  repository = aws_ecr_repository.react_app_secondary.name
 
-
-
-
-
-
+  policy = jsonencode({
+    rules = [ {
+      rulePriority = 1
+      description  = "Keep last 5 images"
+      selection = {
+        tagStatus   = "any"
+        countType   = "imageCountMoreThan"
+        countNumber = 5
+      }
+      action = {
+        type = "expire"
+      }
+    }]
+  })
+}

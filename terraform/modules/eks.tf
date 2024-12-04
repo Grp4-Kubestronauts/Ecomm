@@ -12,6 +12,10 @@ resource "aws_eks_cluster" "main" {
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_policy
   ]
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the EKS cluster
+  }
 }
 
 resource "aws_eks_node_group" "main" {
@@ -33,6 +37,10 @@ resource "aws_eks_node_group" "main" {
     aws_iam_role_policy_attachment.eks_cni_policy,
     aws_iam_role_policy_attachment.ecr_read_only
   ]
+
+  lifecycle {
+    ignore_changes = [node_group_name]  # This will ignore changes to the 'node_group_name' attribute
+  }
 }
 
 # Secondary EKS Cluster and Node Group
@@ -50,6 +58,10 @@ resource "aws_eks_cluster" "secondary" {
   depends_on = [
     aws_iam_role_policy_attachment.eks_cluster_policy
   ]
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the EKS cluster
+  }
 }
 
 resource "aws_eks_node_group" "secondary" {
@@ -72,24 +84,30 @@ resource "aws_eks_node_group" "secondary" {
     aws_iam_role_policy_attachment.eks_cni_policy,
     aws_iam_role_policy_attachment.ecr_read_only
   ]
+
+  lifecycle {
+    ignore_changes = [node_group_name]  # This will ignore changes to the 'node_group_name' attribute
+  }
 }
 
 # IAM Roles and Policies (No change required)
-
-
 resource "aws_iam_role" "eks_cluster" {
   name = "${var.environment}-eks-cluster-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
+    Statement = [ {
       Action = "sts:AssumeRole"
       Effect = "Allow"
       Principal = {
         Service = "eks.amazonaws.com"
       }
-    }]
+    } ]
   })
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the IAM role
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
@@ -102,14 +120,18 @@ resource "aws_iam_role" "eks_nodes" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
+    Statement = [ {
       Action = "sts:AssumeRole"
       Effect = "Allow"
       Principal = {
         Service = "ec2.amazonaws.com"
       }
-    }]
+    } ]
   })
+
+  lifecycle {
+    ignore_changes = [name]  # This will ignore changes to the 'name' attribute of the IAM role
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
