@@ -24,11 +24,13 @@ aws eks update-kubeconfig --name react-app-eks --region us-east-2
 
 ### 3. Create AWS Secrets
 Update `create-aws-secrets.sh` with the following details:
+```
 - `host`: <database endpoint>
 - `dbname`: <db name>
 - `username`: <username>
 - `password`: <your db password>
 - `port`: 5432
+```
 
 Then run:
 ```bash
