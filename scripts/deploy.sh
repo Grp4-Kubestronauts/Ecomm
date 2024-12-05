@@ -13,8 +13,15 @@ log() {
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
 
+update_kubeconfig() {
+    log "Updating kubeconfig with latest cluster endpoint..."
+    aws eks update-kubeconfig --region ${AWS_REGION} --name ${CLUSTER_NAME}
+}
+
+
 # Source environment variables
 source "${SCRIPT_DIR}/set-env.sh"
+update_kubeconfig 
 
 # Login to ECR
 log "Authenticating with ECR..."

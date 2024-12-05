@@ -82,6 +82,16 @@ Refer the `db/init.sql` for the queries. You can copy paste the query.
   value: "Replace this with the cart-servie URL you get after first deployment"
   ```  
 
+####Update cart-service-secrets.yaml
+```yaml
+stringData:
+  database-url: "postgresql://postgres:<password>@<endpoint url>:5432/<dbname>"
+  s3-bucket: "ecommerce-bucket-kube"
+  aws-region: "us-east-2"
+  api-url: "<cart service url>"
+```
+
+
 ## Useful Kubernetes Commands
 ```bash
 # List all pods
