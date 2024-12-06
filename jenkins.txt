@@ -37,6 +37,34 @@ pipeline {
                 """
             }
         }
+        
+        stage('Apply Terraform Changes') {
+            tools {
+                terraform 'Terraform-11'  // Ensure this matches the name of the configured tool
+            }
+            steps {
+                dir('terraform') {
+                    script {
+                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
+                            try {
+                                // Initialize Terraform
+                                sh '''
+                                    cd modules
+                                    echo "The TERRAFORM folder running is at $(pwd)"
+                                    terraform init
+                                    terraform plan  
+                                    terraform apply -auto-approve
+                                '''
+                            } catch (Exception e) {
+                                echo "Terraform Apply failed: ${e.getMessage()}"
+                                currentBuild.result = 'FAILURE'  // Mark the build as failed
+                                throw e  // Re-throw the error to stop the pipeline
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         stage('Login to AWS ECR') {
             steps {
@@ -153,32 +181,7 @@ pipeline {
             }
         }
 
-        stage('Apply Terraform Changes') {
-            tools {
-                terraform 'Terraform-11'  // Ensure this matches the name of the configured tool
-            }
-            steps {
-                dir('terraform') {
-                    script {
-                        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'bosco_aws']]) {
-                            try {
-                                // Initialize Terraform
-                                sh '''
-                                    cd modules
-                                    echo "The TERRAFORM folder running is at $(pwd)"
-                                    terraform init
-                                    terraform apply -auto-approve
-                                '''
-                            } catch (Exception e) {
-                                echo "Terraform Apply failed: ${e.getMessage()}"
-                                currentBuild.result = 'FAILURE'  // Mark the build as failed
-                                throw e  // Re-throw the error to stop the pipeline
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        
 
         stage('Clean Up') {
             steps {
