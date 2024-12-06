@@ -35,7 +35,14 @@ Update `create-aws-secrets.sh` with the following details:
 Then run:
 ```bash
 chmod +x create-aws-secrets.sh
-./create-aws-secrets.sh
+chmod +x deploy.sh
+```
+
+###Update set-env.sh
+```bash
+
+export CART_ECR_REPO="<your account id>.dkr.ecr.us-east-2.amazonaws.com/dev-cart-service"
+export FRONTEND_ECR_REPO="<Your account id>.dkr.ecr.us-east-2.amazonaws.com/react-app-repo"
 ```
 
 ### 4. Configure Environment Variables
