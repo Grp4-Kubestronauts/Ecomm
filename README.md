@@ -61,8 +61,16 @@ PORT=3001
 ### 5. Database Initialization
 Connect to the RDS instance:
 ```bash
+sudo dnf update
+sudo dnf install postgresql15.x86_64 postgresql15-server -y
+
 psql -h <RDS_ENDPOINT> -U postgres -d dbinstance-ecommerce
 \c dbinstance-ecommerce
+
+
+\i /home/ec2-user/init.sql  (To run a sql file)
+\dt (displays the tables in)
+
 ```
 Refer the `db/init.sql` for the queries. You can copy paste the query.
 
