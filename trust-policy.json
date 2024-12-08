@@ -1,0 +1,17 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": "arn:aws:iam::392294087512:oidc-provider/oidc.eks.us-east-2.amazonaws.com/id/09A3D747DB70C6E394E20F864254149F"
+        },
+        "Action": "sts:AssumeRoleWithWebIdentity",
+        "Condition": {
+          "StringEquals": {
+            "oidc.eks.us-east-2.amazonaws.com/id/09A3D747DB70C6E394E20F864254149F:sub": "system:serviceaccount:default:cart-service-account"
+          }
+        }
+      }
+    ]
+  }
