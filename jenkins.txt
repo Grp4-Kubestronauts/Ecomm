@@ -52,6 +52,7 @@ pipeline {
                                     cd modules
                                     echo "The TERRAFORM folder running is at $(pwd)"
                                     terraform init
+                                    terraform import aws_vpc.main vpc
                                     terraform plan  
                                     terraform apply -auto-approve
                                 '''

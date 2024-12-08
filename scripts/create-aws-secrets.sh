@@ -11,7 +11,7 @@ SECRET_STRING='{
 
 # Create the secret in AWS Secrets Manager
 aws secretsmanager create-secret \
-    --name ecommerce/db \
+    --name ecommerce2/db2 \
     --description "Database credentials for ecommerce application" \
     --secret-string "$SECRET_STRING" \
     --region us-east-2 

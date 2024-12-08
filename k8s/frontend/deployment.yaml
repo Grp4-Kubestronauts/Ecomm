@@ -14,12 +14,12 @@ spec:
     spec:
       containers:
       - name: react-app
-        image: 195275674076.dkr.ecr.us-east-2.amazonaws.com/react-app-repo:latest
+        image: $REPO:latest
         ports:
         - containerPort: 80
         env:
           - name: REACT_APP_API_URL
-            value: "http://a5e7e6e788ee44a05a6344181fd4c3e1-1752368342.us-east-2.elb.amazonaws.com"
+            value: $CART_URL
         readinessProbe:
           httpGet:
             path: /

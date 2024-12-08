@@ -29,10 +29,4 @@ else
     exit 1
 fi
 
-# Upload sample images to S3
-log "Uploading sample images to S3..."
-aws s3 cp images/watch.jpg s3://ecommerce-bucket-kube/products/watch.jpg
-aws s3 cp images/shoe.jpg s3://ecommerce-bucket-kube/products/shoe.jpg
-aws s3 cp images/shirt.jpg s3://ecommerce-bucket-kube/products/shirt.jpg
-
 log "Setup complete!" 

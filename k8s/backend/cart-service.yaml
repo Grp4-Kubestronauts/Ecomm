@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: cart-service
-        image: 195275674076.dkr.ecr.us-east-2.amazonaws.com/dev-cart-service:latest
+        image: $ECR_REPO:latest
         ports:
         - containerPort: 3001
         env:

@@ -6,20 +6,20 @@ output "cluster_name" {
   value = aws_eks_cluster.main.name
 }
 
-output "ecr_repository_url" {
+
+
+output "backend_ECR_url" {
+  value = aws_ecr_repository.cart_service.repository_url
+}
+output "frontend_ECR_url" {
   value = aws_ecr_repository.react_app.repository_url
 }
 
-output "ecr_repository_url_secondary" {
+output "frontend_ECR_url_secondary" {
   value = aws_ecr_repository.react_app_secondary.repository_url
 }
 
-
-
-output "cart_service_repository_url" {
-  value = aws_ecr_repository.cart_service.repository_url
-}
-output "cart_service_repository_url_secondary" {
+output "backend_ECR_url_secondary" {
   value = aws_ecr_repository.cart_service_secondary.repository_url
 }
 output "db_instance_endpoint" {
