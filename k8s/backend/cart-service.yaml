@@ -23,20 +23,11 @@ spec:
           - name: NODE_ENV
             value: "development"
           - name: DATABASE_URL
-            valueFrom:
-              secretKeyRef:
-                name: cart-service-secrets
-                key: database-url
+            value: "postgresql://postgres:admin12345@mydb2.cfwsoy60i9bt.us-east-2.rds.amazonaws.com:5432/ecomm"
           - name: S3_BUCKET
-            valueFrom:
-              secretKeyRef:
-                name: cart-service-secrets
-                key: s3-bucket
+            value: "ecommerce-bucket-kube1"
           - name: AWS_REGION
-            valueFrom:
-              secretKeyRef:
-                name: cart-service-secrets
-                key: aws-region
+            value: "us-east-2"
         readinessProbe:
           httpGet:
             path: /health
