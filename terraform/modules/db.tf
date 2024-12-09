@@ -27,7 +27,6 @@ resource "aws_security_group" "db_sg" {
 }
 
 
-# 3. Define the RDS instance resource
 resource "aws_db_instance" "primary" {
   identifier              = "mydb2"
   engine                  = "postgres"
@@ -46,6 +45,8 @@ resource "aws_db_instance" "primary" {
   backup_retention_period = 7
   multi_az                = false
   storage_encrypted       = true
+  backup_window         = "03:00-04:00"
+  maintenance_window    = "Mon:04:00-Mon:05:00"
   auto_minor_version_upgrade = true
   tags = {
     Environment = "production"
@@ -54,6 +55,7 @@ resource "aws_db_instance" "primary" {
 
   storage_type            = "gp2"
 }
+
 
 # Create a DB subnet group for RDS to use the subnets
 resource "aws_db_subnet_group" "db_subnet_group" {

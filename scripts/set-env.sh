@@ -3,8 +3,8 @@
 # AWS Configuration
 export AWS_REGION=us-east-2
 export S3_BUCKET=ecommerce-bucket-kube
-export CART_ECR_REPO="727646471862.dkr.ecr.us-east-2.amazonaws.com/dev-cart-service"
-export FRONTEND_ECR_REPO="727646471862.dkr.ecr.us-east-2.amazonaws.com/react-app-repo"
+export CART_ECR_REPO="392294087512.dkr.ecr.us-east-2.amazonaws.com/dev-cart-service"
+export FRONTEND_ECR_REPO="392294087512.dkr.ecr.us-east-2.amazonaws.com/react-app-repo"
 
 
 # Try to get secrets from AWS Secrets Manager, fall back to environment variables if not available

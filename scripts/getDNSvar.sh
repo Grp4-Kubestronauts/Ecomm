@@ -17,6 +17,7 @@ log "Fetching AWS account number..."
 AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query "Account" --output text)
 
 # Navigate to terraform directory and get outputs
+cd ../
 cd terraform/modules
 log "Fetching cluster names from Terraform outputs..."
 CLUSTER_NAME=$(terraform output -raw cluster_name)
@@ -35,6 +36,7 @@ log "Secondary Load Balancer DNS: $SECONDARY_LB_DNS"
 # Get load balancer zone IDs
 log "Fetching primary load balancer zone ID..."
 PRIMARY_LB_ZONE_ID=$(aws elb describe-load-balancers \
+    --region $AWS_REGION \
     --query "LoadBalancerDescriptions[?DNSName==\`$PRIMARY_LB_DNS\`].CanonicalHostedZoneNameID" \
     --output text)
 log "Primary Load Balancer Zone ID: $PRIMARY_LB_ZONE_ID"

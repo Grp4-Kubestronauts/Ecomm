@@ -34,7 +34,7 @@ check_env_vars() {
 
 # Function to get cart service URL
 get_cart_service_url() {
-    kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-east-2:727646471862:cluster/react-app-eks
+    kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-east-2:392294087512:cluster/react-app-eks
 }
 
 # This line invokes the check_env_vars function to ensure that the required environment variables are set 
@@ -82,6 +82,15 @@ if [ -z "$CART_API_URL" ]; then
 fi
 
 log "Cart Service URL: $CART_API_URL"
+
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart-service-config
+data:
+  cart_service_url: "${CART_API_URL}"
+EOF
 
 # Build and deploy frontend
 log "Building frontend..."

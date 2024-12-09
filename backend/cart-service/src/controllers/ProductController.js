@@ -5,7 +5,9 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
     rejectUnauthorized: false
-  }
+  },
+  connectionTimeoutMillis: 10000, // Increase timeout to 10 seconds
+  query_timeout: 10000
 });
 
 export class ProductController {

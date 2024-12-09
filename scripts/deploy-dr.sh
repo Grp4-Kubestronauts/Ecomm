@@ -34,7 +34,7 @@ check_env_vars() {
 
 # Function to get cart service URL
 get_cart_service_url() {
-    kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-west-2:727646471862:cluster/dev-eks-secondary
+    kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-west-2:392294087512:cluster/dev-eks-secondary
 }
 
 # This line invokes the check_env_vars function to ensure that the required environment variables are set 
@@ -47,7 +47,7 @@ log "Creating Kubernetes configurations..."
 aws eks --region us-west-2 update-kubeconfig --name dev-eks-secondary
 kubectl apply -f "${PROJECT_ROOT}/k8s/secrets/cart-service-secrets-dr.yaml"
 kubectl apply -f "${PROJECT_ROOT}/k8s/backend/cart-service-account.yaml"
-kubectl config use-context arn:aws:eks:us-west-2:727646471862:cluster/dev-eks-secondary
+kubectl config use-context arn:aws:eks:us-west-2:392294087512:cluster/dev-eks-secondary
 
 
 # If u didnt run secret manager with all the required db then this will run it.
@@ -85,6 +85,15 @@ fi
 
 log "Cart Service URL: $CART_API_URL"
 
+cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cart-service-config
+data:
+  cart_service_url: "${CART_API_URL}"
+EOF
+
 # Build and deploy frontend
 log "Building frontend..."
 cd "${PROJECT_ROOT}/frontend"
@@ -104,5 +113,5 @@ log "Waiting for frontend deployment..."
 kubectl rollout status deployment/react-app
 
 log "Deployment complete!"
-log "Frontend URL: $(kubectl get svc react-app-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-west-2:727646471862:cluster/dev-eks-secondary)"
+log "Frontend URL: $(kubectl get svc react-app-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-west-2:392294087512:cluster/dev-eks-secondary)"
 log "Cart Service URL: $CART_API_URL"

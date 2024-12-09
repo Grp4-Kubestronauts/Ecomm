@@ -1,13 +1,13 @@
 variable "aws_region" {
-  description = "AWS region"
+  description = "Primary AWS region"
   type        = string
-  default     = "us-east-2" # Change this to your region
+  default     = "us-east-2"
 }
 
-variable "secondary_aws_region" {
+variable "aws_region_secondary" {
   description = "Secondary AWS region for DR"
   type        = string
-  default     = "us-west-2" # Change as needed
+  default     = "us-west-2"
 }
 
 variable "environment" {
@@ -37,7 +37,7 @@ variable "vpc_cidr_secondary" {
 variable "domain_name" {
   description = "Domain name for the hosted zone"
   type        = string
-  default     = "kubestronauts.link"
+  default     = "kubeastronauts.link"
 }
 
 variable "subdomain" {
