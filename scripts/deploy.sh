@@ -83,14 +83,14 @@ fi
 
 log "Cart Service URL: $CART_API_URL"
 
-cat <<EOF | kubectl apply -f -
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: cart-service-config
-data:
-  cart_service_url: "${CART_API_URL}"
-EOF
+# cat <<EOF | kubectl apply -f -
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: cart-service-config
+# data:
+#   cart_service_url: "${CART_API_URL}"
+# EOF
 
 # Build and deploy frontend
 log "Building frontend..."
