@@ -8,7 +8,7 @@ log() {
 
 # Gets the script and project_root path store in these variables for convience
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" #Ecomm\scripts
-PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"
+PROJECT_ROOT="$( cd "$SCRIPT_DIR/.." && pwd )"   
 
 AWS_REGION='us-east-2'
 
