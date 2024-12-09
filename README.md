@@ -5,6 +5,9 @@ Terraform installed
 kubectl installed
 PostgreSQL client installed
 Infrastructure Setup
+
+###Important part: I added dynamic url fetching, so now you just have to update the account id and nothing else.
+
 1. Initialize AWS Infrastructure with Terraform
 cd terraform/modules
 terraform init
