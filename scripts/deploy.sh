@@ -34,7 +34,7 @@ check_env_vars() {
 
 # Function to get cart service URL
 get_cart_service_url() {
-    kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-east-2:727646471862:cluster/react-app-eks
+    kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-east-2:195275674076:cluster/react-app-eks
 }
 
 # This line invokes the check_env_vars function to ensure that the required environment variables are set 
@@ -69,11 +69,11 @@ docker push ${CART_ECR_REPO}:latest
 log "Deploying cart service to Kubernetes..."
 sed -e "s|\${ECR_REPO_CART}|$CART_ECR_REPO|g" \
     "${PROJECT_ROOT}/k8s/backend/cart-service.yaml" | kubectl apply -f -
-
+echo "checking-----------------------3"
 # Wait for cart service
 log "Waiting for cart service deployment..."
 kubectl rollout status deployment/cart-service
-
+echo "checking-----------------------4"
 # Get Cart Service URL #line 36
 CART_API_URL=$(get_cart_service_url)  #kubectl get svc cart-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 if [ -z "$CART_API_URL" ]; then

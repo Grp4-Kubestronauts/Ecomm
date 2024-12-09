@@ -33,7 +33,7 @@ resource "aws_security_group" "ec2_sg" {
 # 4. Create the EC2 Instance
 resource "aws_instance" "db-server" {
   ami             = "ami-0c80e2b6ccb9ad6d1"  # Amazon Linux 2023 AMI ID
-  instance_type   = "t2.micro"               # Free tier eligible
+  instance_type   = "t2.small"               # Free tier eligible
   key_name        = "bosco_winmachine"          # Use your key pair name here
   subnet_id       = aws_subnet.db_public_subnet.id
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
@@ -51,7 +51,7 @@ resource "aws_instance" "db-server" {
 
   tags = {
     Name = "database-server"
-  }
+  } 
 
   # Optional: To use spot instances for cost saving
   # spot_price = "0.005"  # Set spot price if necessary
