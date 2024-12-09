@@ -48,12 +48,14 @@ aws eks --region us-west-2 update-kubeconfig --name dev-eks-secondary
 kubectl apply -f "${PROJECT_ROOT}/k8s/secrets/cart-service-secrets-dr.yaml"
 kubectl apply -f "${PROJECT_ROOT}/k8s/backend/cart-service-account.yaml"
 kubectl config use-context arn:aws:eks:us-west-2:727646471862:cluster/dev-eks-secondary
+
+
 # If u didnt run secret manager with all the required db then this will run it.
-# log "Setting up AWS Secrets..."
-# if ! aws secretsmanager describe-secret --secret-id ecommerce/db >/dev/null 2>&1; then
-#     log "Creating AWS Secrets..."
-#     ./create-aws-secrets.sh
-# fi
+log "Setting up AWS Secrets..."
+if ! aws secretsmanager describe-secret --secret-id ecommerce/db >/dev/null 2>&1; then
+    log "Creating AWS Secrets..."
+    ./create-aws-secrets.sh
+fi
 
 
 
@@ -102,5 +104,5 @@ log "Waiting for frontend deployment..."
 kubectl rollout status deployment/react-app
 
 log "Deployment complete!"
-log "Frontend URL: $(kubectl get svc react-app-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}') --context=arn:aws:eks:us-west-2:727646471862:cluster/dev-eks-secondary"
+log "Frontend URL: $(kubectl get svc react-app-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' --context=arn:aws:eks:us-west-2:727646471862:cluster/dev-eks-secondary)"
 log "Cart Service URL: $CART_API_URL"

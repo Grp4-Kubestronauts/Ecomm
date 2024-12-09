@@ -19,7 +19,7 @@ spec:
         - containerPort: 80
         env:
           - name: REACT_APP_API_URL
-            value: "727646471862.dkr.ecr.us-west-2.amazonaws.com/dev-cart_service_secondary"
+            value: "ae129192eaeb14c94b3930d3fa577813-1993320304.us-west-2.elb.amazonaws.com"
         readinessProbe:
           httpGet:
             path: /

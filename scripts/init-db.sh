@@ -31,8 +31,8 @@ fi
 
 # Upload sample images to S3
 log "Uploading sample images to S3..."
-aws s3 cp images/watch.jpg s3://ecommerce-bucket-kube/products/watch.jpg
-aws s3 cp images/shoe.jpg s3://ecommerce-bucket-kube/products/shoe.jpg
-aws s3 cp images/shirt.jpg s3://ecommerce-bucket-kube/products/shirt.jpg
+aws s3 cp images/watch.jpg s3://ecommerce-bucket-kube511/products/watch.jpg
+aws s3 cp images/shoe.jpg s3://ecommerce-bucket-kube511/products/shoe.jpg
+aws s3 cp images/shirt.jpg s3://ecommerce-bucket-kube511/products/shirt.jpg
 
 log "Setup complete!" 

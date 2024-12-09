@@ -2,7 +2,7 @@
 
 # AWS Configuration
 export AWS_REGION=us-east-2
-export S3_BUCKET=ecommerce-bucket-kube511
+export S3_BUCKET=ecommerce-bucket-kube
 export CART_ECR_REPO="727646471862.dkr.ecr.us-east-2.amazonaws.com/dev-cart-service"
 export FRONTEND_ECR_REPO="727646471862.dkr.ecr.us-east-2.amazonaws.com/react-app-repo"
 
